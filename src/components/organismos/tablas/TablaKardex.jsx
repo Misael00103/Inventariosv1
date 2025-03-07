@@ -1,12 +1,10 @@
-import styled from "styled-components";
-import {
-  ContentAccionesTabla,
-  useCategoriasStore,
-  Paginacion,
-} from "../../../index";
-import Swal from "sweetalert2";
-import { v } from "../../../styles/variables";
-import { useState } from "react";
+"use client"
+
+import styled from "styled-components"
+import { useCategoriasStore, Paginacion } from "../../../index"
+import Swal from "sweetalert2"
+import { v } from "../../../styles/variables"
+import { useState, useEffect } from "react"
 import {
   flexRender,
   getCoreRowModel,
@@ -14,21 +12,20 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
-import { FaArrowsAltV } from "react-icons/fa";
-import {Device} from "../../../styles/breakpoints"
-export function TablaKardex({
-  data,
-  SetopenRegistro,
-  setdataSelect, 
-  setAccion,
-}) {
-  if (data?.length == 0) return;
-  const [pagina, setPagina] = useState(1);
-  const [datas, setData] = useState(data);
-  const [columnFilters, setColumnFilters] = useState([]);
+} from "@tanstack/react-table"
+import { FaArrowsAltV } from "react-icons/fa"
+import { Device } from "../../../styles/breakpoints"
 
-  const { eliminarCategoria } = useCategoriasStore();
+export function TablaKardex({ data, SetopenRegistro, setdataSelect, setAccion }) {
+  const [pagina, setPagina] = useState(1)
+  const [datas, setData] = useState([]) // Initialize with an empty array
+  const [columnFilters, setColumnFilters] = useState([])
+
+  const { eliminarCategoria } = useCategoriasStore()
+  useEffect(() => {
+    setData(data) // Update datas when data prop changes
+  }, [data])
+
   function eliminar(p) {
     Swal.fire({
       title: "¿Estás seguro(a)(e)?",
@@ -40,15 +37,15 @@ export function TablaKardex({
       confirmButtonText: "Si, eliminar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        console.log(p);
-        await eliminarCategoria({ id: p });
+        console.log(p)
+        await eliminarCategoria({ id: p })
       }
-    });
+    })
   }
   function editar(data) {
-    SetopenRegistro(true);
-    setdataSelect(data);
-    setAccion("Editar");
+    SetopenRegistro(true)
+    setdataSelect(data)
+    setAccion("Editar")
   }
   const columns = [
     {
@@ -57,9 +54,26 @@ export function TablaKardex({
       cell: (info) => <span>{info.getValue()}</span>,
       enableColumnFilter: true,
       filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
+        if (filterStatuses.length === 0) return true
+        const status = row.getValue(columnId)
+        return filterStatuses.includes(status?.id)
+      },
+    },
+    // Add barcode column
+    {
+      accessorKey: "barcode",
+      header: "Código de Barras",
+      enableSorting: false,
+      cell: (info) => (
+        <td data-title="Código de Barras" className="ContentCell">
+          <span>{info.getValue() || "—"}</span>
+        </td>
+      ),
+      enableColumnFilter: true,
+      filterFn: (row, columnId, filterStatuses) => {
+        if (filterStatuses.length === 0) return true
+        const status = row.getValue(columnId)
+        return filterStatuses.includes(status?.id)
       },
     },
     {
@@ -73,9 +87,9 @@ export function TablaKardex({
       ),
       enableColumnFilter: true,
       filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
+        if (filterStatuses.length === 0) return true
+        const status = row.getValue(columnId)
+        return filterStatuses.includes(status?.id)
       },
     },
     {
@@ -85,27 +99,21 @@ export function TablaKardex({
       cell: (info) => (
         <td data-title="Tipo" className="ContentCell">
           {info.getValue() == "salida" ? (
-            <Colorcontent
-              color="#ed4d4d"
-              className="contentCategoria"
-            >
+            <Colorcontent color="#ed4d4d" className="contentCategoria">
               {info.getValue()}
             </Colorcontent>
           ) : (
-            <Colorcontent
-            color="#30c85b"
-            className="contentCategoria"
-          >
-            {info.getValue()}
-          </Colorcontent>
+            <Colorcontent color="#30c85b" className="contentCategoria">
+              {info.getValue()}
+            </Colorcontent>
           )}
         </td>
       ),
       enableColumnFilter: true,
       filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
+        if (filterStatuses.length === 0) return true
+        const status = row.getValue(columnId)
+        return filterStatuses.includes(status?.id)
       },
     },
     {
@@ -119,9 +127,9 @@ export function TablaKardex({
       ),
       enableColumnFilter: true,
       filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
+        if (filterStatuses.length === 0) return true
+        const status = row.getValue(columnId)
+        return filterStatuses.includes(status?.id)
       },
     },
     {
@@ -135,9 +143,9 @@ export function TablaKardex({
       ),
       enableColumnFilter: true,
       filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
+        if (filterStatuses.length === 0) return true
+        const status = row.getValue(columnId)
+        return filterStatuses.includes(status?.id)
       },
     },
     {
@@ -151,9 +159,9 @@ export function TablaKardex({
       ),
       enableColumnFilter: true,
       filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
+        if (filterStatuses.length === 0) return true
+        const status = row.getValue(columnId)
+        return filterStatuses.includes(status?.id)
       },
     },
     {
@@ -167,14 +175,14 @@ export function TablaKardex({
       ),
       enableColumnFilter: true,
       filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
+        if (filterStatuses.length === 0) return true
+        const status = row.getValue(columnId)
+        return filterStatuses.includes(status?.id)
       },
     },
-  ];
+  ]
   const table = useReactTable({
-    data,
+    data: datas, // Use datas state instead of data prop directly
     columns,
     state: {
       columnFilters,
@@ -193,11 +201,11 @@ export function TablaKardex({
                   ...prev[rowIndex],
                   [columnId]: value,
                 }
-              : row
-          )
+              : row,
+          ),
         ),
     },
-  });
+  })
   return (
     <>
       <Container>
@@ -209,10 +217,7 @@ export function TablaKardex({
                   <th key={header.id}>
                     {header.column.columnDef.header}
                     {header.column.getCanSort() && (
-                      <span
-                        style={{ cursor: "pointer" }}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
+                      <span style={{ cursor: "pointer" }} onClick={header.column.getToggleSortingHandler()}>
                         <FaArrowsAltV />
                       </span>
                     )}
@@ -225,9 +230,7 @@ export function TablaKardex({
                     <div
                       onMouseDown={header.getResizeHandler()}
                       onTouchStart={header.getResizeHandler()}
-                      className={`resizer ${
-                        header.column.getIsResizing() ? "isResizing" : ""
-                      }`}
+                      className={`resizer ${header.column.getIsResizing() ? "isResizing" : ""}`}
                     />
                   </th>
                 ))}
@@ -238,9 +241,7 @@ export function TablaKardex({
             {table.getRowModel().rows.map((item) => (
               <tr key={item.id}>
                 {item.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
+                  <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                 ))}
               </tr>
             ))}
@@ -255,8 +256,9 @@ export function TablaKardex({
         />
       </Container>
     </>
-  );
+  )
 }
+
 const Container = styled.div`
   position: relative;
 
@@ -397,16 +399,18 @@ const Container = styled.div`
       }
     }
   }
-`;
+`
+
 const Colorcontent = styled.div`
   color: ${(props) => props.color};
   border-radius: 8px;
-  border:1px dashed ${(props) => props.color};
+  border: 1px dashed ${(props) => props.color};
   text-align: center;
-  padding:3px;
-  width:70%;
-  font-weight:700;
+  padding: 3px;
+  width: 70%;
+  font-weight: 700;
   @media ${Device.tablet} {
-    width:100%;
+    width: 100%;
   }
-`;
+`
+
