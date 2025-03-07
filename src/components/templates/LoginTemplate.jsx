@@ -19,7 +19,7 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import carrito from "../../assets/cajas.png";
-import logo from "../../assets/inventarioslogo.png";
+import logo from "../../assets/logo-idigroup-sf.png";
 import { MdOutlineInfo } from "react-icons/md";
 import { ThemeContext } from "../../App";
 export function LoginTemplate() {
@@ -35,8 +35,8 @@ export function LoginTemplate() {
   const mutation = useMutation({
     mutationFn: async () => {
       const p = {
-        correo: "frank@gmail.com",
-        pass: "gTh1238",
+        correo: "arkit@arkit.com",
+        pass: "Misael123",
       };
       await insertarUsuario(p);
     },
@@ -63,7 +63,7 @@ export function LoginTemplate() {
     <Container imgfondo={v.imagenfondo}>
       <div className="contentLogo">
         <img src={logo}></img>
-        <span>Arkit</span>
+         {/*<span>Arkit</span>*/}
       </div>
       <div className="bannerlateral">
         <img src={carrito}></img>
@@ -111,7 +111,7 @@ export function LoginTemplate() {
               {errors.pass?.type === "required" && <p>Campo requerido</p>}
             </InputText>
             <ContainerBtn>
-              <Btnsave titulo="Iniciar" bgcolor="#fc6b32" />
+              <Btnsave titulo="Iniciar" bgcolor="#5c67c0" />
               <Btnsave
                 funcion={() => setState(!state)}
                 titulo="Crear cuenta"
@@ -147,7 +147,7 @@ const Container = styled.div`
     color: #fff;
 
     img {
-      width: 50px;
+      width: 250px;
     }
   }
   .cuadros {
@@ -160,7 +160,7 @@ const Container = styled.div`
   }
 
   .bannerlateral {
-    background-color: #fc6b32;
+    background-color: #5c67c0;
     height: 100vh;
     display: flex;
     align-items: center;
@@ -210,7 +210,7 @@ const Container = styled.div`
       }
     }
     .frase {
-      color: #fc6c32;
+      color: #5c67c0;
       font-size: 1.5rem;
       font-weight: 700;
       margin-bottom:30px;

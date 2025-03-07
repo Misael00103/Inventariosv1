@@ -6,17 +6,17 @@ export function FooterLogin() {
       <section className="lock">
         <GiPadlock />
         <span>
-          Esta es una página segura de codigo369. Si tienes dudas sobre la
+          Esta es una página segura de Arkit. Si tienes dudas sobre la
           autenticidad de la web, comunícate con
-          <br /> nosotros al 311-9898 o a través de nuestros medios digitales.
+          <br /> nosotros al 849-409-6331 o a través de nuestros medios digitales.
         </span>
       </section>
       <section className="derechos">
-        <span>Arkit S.A - RUC: 20100047218</span>
+        <span>Arkit - RNC: 4020040999</span>
         <div className="separador"></div>
         <span>Todos los derechos reservados</span>
         <div className="separador"></div>
-        <span>© 2023 codigo369.com</span>
+        <span>© 2025 arkit.site</span>
       </section>
     </Container>
   );
