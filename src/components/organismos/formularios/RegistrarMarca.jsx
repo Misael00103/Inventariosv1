@@ -91,7 +91,7 @@ export function RegistrarMarca({ onClose, dataSelect, accion }) {
               <Btnsave
                 icono={<v.iconoguardar />}
                 titulo="Guardar"
-                bgcolor="#ef552b"
+                bgcolor="#5c67c0"
               />
             </div>
           </section>

@@ -20,7 +20,7 @@ import {Device} from "../../../styles/breakpoints"
 export function TablaKardex({
   data,
   SetopenRegistro,
-  setdataSelect,
+  setdataSelect, 
   setAccion,
 }) {
   if (data?.length == 0) return;
@@ -110,7 +110,7 @@ export function TablaKardex({
     },
     {
       accessorKey: "detalle",
-      header: "Delle",
+      header: "Detalle",
       enableSorting: false,
       cell: (info) => (
         <td data-title="Usuario" className="ContentCell">

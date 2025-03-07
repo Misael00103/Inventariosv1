@@ -191,7 +191,7 @@ export function RegistrarPersonal({
               <label>Tipo doc: </label>
               <Selector
                 state={stateMarca}
-                color="#fc6027"
+                color="#5c67c0"
                 texto1="🎴"
                 texto2={tipodoc.descripcion}
                 funcion={() => setStateMarca(!stateMarca)}
@@ -267,7 +267,7 @@ export function RegistrarPersonal({
               <label>Tipo: </label>
               <Selector
                 state={stateCategoria}
-                color="#fc6027"
+                color="#5c67c0"
                 texto1="👷‍♂️"
                 texto2={tipouser.descripcion}
                 funcion={() => setStateCategoria(!stateCategoria)}
@@ -302,7 +302,7 @@ export function RegistrarPersonal({
             <Btnsave
               icono={<v.iconoguardar />}
               titulo="Guardar"
-              bgcolor="#EF552B"
+              bgcolor="#5c67c0"
             />
           </div>
         </form>

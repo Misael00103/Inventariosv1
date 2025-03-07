@@ -7,7 +7,7 @@ import {
 } from "../../../index";
 import Swal from "sweetalert2";
 import { v } from "../../../styles/variables";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -17,19 +17,20 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { FaArrowsAltV } from "react-icons/fa";
-import {Device} from "../../../styles/breakpoints"
+import { Device } from "../../../styles/breakpoints";
+
 export function TablaProductos({
   data,
   SetopenRegistro,
   setdataSelect,
   setAccion,
+  isOpen, // Indica si el formulario está abierto
 }) {
-  if (data?.length == 0) return;
   const [pagina, setPagina] = useState(1);
   const [datas, setData] = useState(data);
   const [columnFilters, setColumnFilters] = useState([]);
-
   const { eliminarProductos } = useProductosStore();
+
   function eliminar(p) {
     Swal.fire({
       title: "¿Estás seguro(a)(e)?",
@@ -41,16 +42,85 @@ export function TablaProductos({
       confirmButtonText: "Si, eliminar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        console.log(p);
         await eliminarProductos({ id: p });
       }
     });
   }
+
   function editar(data) {
     SetopenRegistro(true);
     setdataSelect(data);
     setAccion("Editar");
   }
+
+  useEffect(() => {
+    if (isOpen) return; // No escuchar eventos si el formulario está abierto
+
+    let buffer = "";
+    let timeoutId = null;
+
+    const handleKeyDown = (e) => {
+      console.log("Tecla:", e.key, "Código:", e.keyCode);
+
+      if (e.key === "Enter" || e.keyCode === 13) {
+        if (buffer) {
+          console.log("Procesando código con Enter:", buffer);
+          procesarCodigo(buffer);
+          buffer = "";
+        }
+      } else if (/^[0-9a-zA-Z]$/.test(e.key)) {
+        buffer += e.key;
+        console.log("Buffer actual:", buffer);
+
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          if (buffer) {
+            console.log("Procesando código por timeout:", buffer);
+            procesarCodigo(buffer);
+            buffer = "";
+          }
+        }, 300);
+      }
+    };
+
+    const procesarCodigo = (codigo) => {
+      console.log("Código final a procesar:", codigo);
+
+      if (typeof SetopenRegistro !== "function") {
+        console.error("SetopenRegistro no es una función:", SetopenRegistro);
+        return;
+      }
+      if (typeof setdataSelect !== "function") {
+        console.error("setdataSelect no es una función:", setdataSelect);
+        return;
+      }
+      if (typeof setAccion !== "function") {
+        console.error("setAccion no es una función:", setAccion);
+        return;
+      }
+
+      setdataSelect((prevData) => {
+        const updatedData = {
+          ...(prevData || {}),
+          codigobarras: codigo,
+        };
+        console.log("Datos actualizados para dataSelect:", updatedData);
+        return updatedData;
+      });
+
+      console.log("Abriendo formulario con código:", codigo);
+      SetopenRegistro(true);
+      setAccion("Nuevo");
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      clearTimeout(timeoutId);
+    };
+  }, [SetopenRegistro, setdataSelect, setAccion, isOpen]);
+
   const columns = [
     {
       accessorKey: "descripcion",
@@ -63,7 +133,6 @@ export function TablaProductos({
         return filterStatuses.includes(status?.id);
       },
     },
-
     {
       accessorKey: "stock_minimo",
       header: "Stock min",
@@ -84,22 +153,16 @@ export function TablaProductos({
       accessorKey: "categoria",
       header: "Categoria",
       enableSorting: false,
-      cell: (info) => {
-        
-        console.log(info.row.original.color)
-        return (
-          <td data-title="Categoria" className="ContentCell">
-            <Colorcontent
-              color={info.row.original.color}
-              className="contentCategoria"
-            >
-             
-              {info.getValue()}
-            </Colorcontent>
-          </td>
-        );
-      },
-
+      cell: (info) => (
+        <td data-title="Categoria" className="ContentCell">
+          <Colorcontent
+            color={info.row.original.color}
+            className="contentCategoria"
+          >
+            {info.getValue()}
+          </Colorcontent>
+        </td>
+      ),
       enableColumnFilter: true,
       filterFn: (row, columnId, filterStatuses) => {
         if (filterStatuses.length === 0) return true;
@@ -175,12 +238,11 @@ export function TablaProductos({
       },
     },
   ];
+
   const table = useReactTable({
     data,
     columns,
-    state: {
-      columnFilters,
-    },
+    state: { columnFilters },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -190,85 +252,83 @@ export function TablaProductos({
       updateData: (rowIndex, columnId, value) =>
         setData((prev) =>
           prev.map((row, index) =>
-            index === rowIndex
-              ? {
-                  ...prev[rowIndex],
-                  [columnId]: value,
-                }
-              : row
+            index === rowIndex ? { ...prev[rowIndex], [columnId]: value } : row
           )
         ),
     },
   });
+
   return (
-    <>
-      <Container>
-        <table className="responsive-table">
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id}>
-                    {header.column.columnDef.header}
-                    {header.column.getCanSort() && (
-                      <span
-                        style={{ cursor: "pointer" }}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        <FaArrowsAltV />
-                      </span>
-                    )}
-                    {
-                      {
+    <Container>
+      {data?.length > 0 ? (
+        <>
+          <table className="responsive-table">
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th key={header.id}>
+                      {header.column.columnDef.header}
+                      {header.column.getCanSort() && (
+                        <span
+                          style={{ cursor: "pointer" }}
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          <FaArrowsAltV />
+                        </span>
+                      )}
+                      {{
                         asc: " 🔼",
                         desc: " 🔽",
-                      }[header.column.getIsSorted()]
-                    }
-                    <div
-                      onMouseDown={header.getResizeHandler()}
-                      onTouchStart={header.getResizeHandler()}
-                      className={`resizer ${
-                        header.column.getIsResizing() ? "isResizing" : ""
-                      }`}
-                    />
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((item) => (
-              <tr key={item.id}>
-                {item.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <Paginacion
-          table={table}
-          irinicio={() => table.setPageIndex(0)}
-          pagina={table.getState().pagination.pageIndex + 1}
-          setPagina={setPagina}
-          maximo={table.getPageCount()}
-        />
-      </Container>
-    </>
+                      }[header.column.getIsSorted()]}
+                      <div
+                        onMouseDown={header.getResizeHandler()}
+                        onTouchStart={header.getResizeHandler()}
+                        className={`resizer ${
+                          header.column.getIsResizing() ? "isResizing" : ""
+                        }`}
+                      />
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((item) => (
+                <tr key={item.id}>
+                  {item.getVisibleCells().map((cell) => (
+                    <td key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Paginacion
+            table={table}
+            irinicio={() => table.setPageIndex(0)}
+            pagina={table.getState().pagination.pageIndex + 1}
+            setPagina={setPagina}
+            maximo={table.getPageCount()}
+          />
+        </>
+      ) : (
+        <p>No hay productos registrados aún.</p>
+      )}
+    </Container>
   );
 }
+
+// Estilos permanecen iguales
 const Container = styled.div`
   position: relative;
-
   margin: 5% 3%;
   @media (min-width: ${v.bpbart}) {
     margin: 2%;
   }
   @media (min-width: ${v.bphomer}) {
     margin: 2em auto;
-    /* max-width: ${v.bphomer}; */
   }
   .responsive-table {
     width: 100%;
@@ -282,7 +342,6 @@ const Container = styled.div`
     }
     thead {
       position: absolute;
-
       padding: 0;
       border: 0;
       height: 1px;
@@ -318,7 +377,6 @@ const Container = styled.div`
         display: table-row;
       }
     }
-
     th,
     td {
       padding: 0.5em;
@@ -372,7 +430,6 @@ const Container = styled.div`
         justify-content: space-between;
         align-items: center;
         height: 50px;
-
         border-bottom: 1px solid rgba(161, 161, 161, 0.32);
         @media (min-width: ${v.bpbart}) {
           justify-content: center;
@@ -404,14 +461,15 @@ const Container = styled.div`
     }
   }
 `;
+
 const Colorcontent = styled.div`
   color: ${(props) => props.color};
   border-radius: 8px;
-  border:1px dashed ${(props) => props.color};
+  border: 1px dashed ${(props) => props.color};
   text-align: center;
-  padding:3px;
-  width:70%;
+  padding: 3px;
+  width: 70%;
   @media ${Device.tablet} {
-    width:100%;
+    width: 100%;
   }
 `;
