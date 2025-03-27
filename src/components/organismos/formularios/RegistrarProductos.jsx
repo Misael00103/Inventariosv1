@@ -3,22 +3,17 @@ import styled from "styled-components";
 import { v } from "../../../styles/variables";
 import {
   InputText,
-  Spinner,
-  useOperaciones,
-  Btnsave,
-  useUsuariosStore,
-  useCategoriasStore,
-  Selector,
   useProductosStore,
   useMarcaStore,
+  useCategoriasStore,
+  Selector,
   ListaGenerica,
   Btnfiltro,
   RegistrarMarca,
   RegistrarCategorias,
+  Btnsave,
 } from "../../../index";
 import { useForm } from "react-hook-form";
-import { CirclePicker } from "react-color";
-import Emojipicker from "emoji-picker-react";
 import { useEmpresaStore } from "../../../store/EmpresaStore";
 import { Device } from "../../../styles/breakpoints";
 
@@ -32,6 +27,8 @@ export function RegistrarProductos({ onClose, dataSelect, accion }) {
   const [openRegistroMarca, SetopenRegistroMarca] = useState(false);
   const [openRegistroCategoria, SetopenRegistroCategoria] = useState(false);
   const [subaccion, setAccion] = useState("");
+
+  console.log("Valor de accion recibido:", accion); // Depuración del valor de accion
 
   function nuevoRegistroMarca() {
     SetopenRegistroMarca(!openRegistroMarca);
@@ -59,37 +56,44 @@ export function RegistrarProductos({ onClose, dataSelect, accion }) {
   });
 
   async function insertar(data) {
-    if (accion === "Editar") {
-      const p = {
-        id: dataSelect.id,
-        descripcion: data.descripcion,
-        idmarca: marcaItemSelect.id,
-        stock: parseFloat(data.stock),
-        stock_minimo: parseFloat(data.stockminimo),
-        codigobarras: data.codigobarras,
-        codigointerno: data.codigointerno,
-        precioventa: parseFloat(data.precioventa),
-        preciocompra: parseFloat(data.preciocompra),
-        id_categoria: categoriaItemSelect.id,
-        id_empresa: dataempresa.id,
-      };
-      await editarProductos(p);
+    try {
+      console.log("Accion dentro de insertar:", accion); // Depuración justo antes de la lógica
+      if (accion === "Editar") {
+        const p = {
+          _id: dataSelect.id,
+          _descripcion: data.descripcion,
+          _idmarca: marcaItemSelect.id,
+          _stock: parseFloat(data.stock),
+          _stock_minimo: parseFloat(data.stockminimo),
+          _codigobarras: data.codigobarras,
+          _codigointerno: data.codigointerno,
+          _precioventa: parseFloat(data.precioventa),
+          _preciocompra: parseFloat(data.preciocompra),
+          _id_categoria: categoriaItemSelect.id,
+          _id_empresa: dataempresa.id,
+        };
+        console.log("Editando producto con datos:", p);
+        await editarProductos(p); // Llama a editarProductos
+      } else {
+        const p = {
+          _descripcion: data.descripcion,
+          _idmarca: marcaItemSelect.id,
+          _stock: parseFloat(data.stock),
+          _stock_minimo: parseFloat(data.stockminimo),
+          _codigobarras: data.codigobarras,
+          _codigointerno: data.codigointerno,
+          _precioventa: parseFloat(data.precioventa),
+          _preciocompra: parseFloat(data.preciocompra),
+          _id_categoria: categoriaItemSelect.id,
+          _id_empresa: dataempresa.id,
+        };
+        console.log("Insertando producto con datos:", p);
+        await insertarProductos(p); // Llama a insertarProductos
+      }
       onClose();
-    } else {
-      const p = {
-        _descripcion: data.descripcion,
-        _idmarca: marcaItemSelect.id,
-        _stock: parseFloat(data.stock),
-        _stock_minimo: parseFloat(data.stockminimo),
-        _codigobarras: data.codigobarras,
-        _codigointerno: data.codigointerno,
-        _precioventa: parseFloat(data.precioventa),
-        _preciocompra: parseFloat(data.preciocompra),
-        _id_categoria: categoriaItemSelect.id,
-        _id_empresa: dataempresa?.id,
-      };
-      await insertarProductos(p);
-      onClose();
+    } catch (error) {
+      console.error("Error al guardar el producto:", error.message);
+      alert(`Error: ${error.message}`);
     }
   }
 
@@ -174,12 +178,12 @@ export function RegistrarProductos({ onClose, dataSelect, accion }) {
                   placeholder=""
                   {...register("stockminimo", { required: true })}
                 />
-                <label className="form__label">Stock minimo</label>
+                <label className="form__label">Stock mínimo</label>
                 {errors.stockminimo?.type === "required" && <p>Campo requerido</p>}
               </InputText>
             </article>
             <ContainerSelector>
-              <label>Categoria: </label>
+              <label>Categoría: </label>
               <Selector
                 state={stateCategoria}
                 color="#5c67c0"
@@ -213,7 +217,7 @@ export function RegistrarProductos({ onClose, dataSelect, accion }) {
                   placeholder=""
                   {...register("codigobarras", { required: true })}
                 />
-                <label className="form__label">Codigo de barras</label>
+                <label className="form__label">Código de barras</label>
                 {errors.codigobarras?.type === "required" && <p>Campo requerido</p>}
               </InputText>
             </article>
@@ -225,7 +229,7 @@ export function RegistrarProductos({ onClose, dataSelect, accion }) {
                   placeholder=""
                   {...register("codigointerno", { required: true })}
                 />
-                <label className="form__label">Codigo interno</label>
+                <label className="form__label">Código interno</label>
                 {errors.codigointerno?.type === "required" && <p>Campo requerido</p>}
               </InputText>
             </article>
@@ -283,7 +287,7 @@ export function RegistrarProductos({ onClose, dataSelect, accion }) {
   );
 }
 
-// Estilos permanecen iguales
+// Estilos (sin cambios)
 const Container = styled.div`
   transition: 0.5s;
   top: 0;
@@ -301,7 +305,6 @@ const Container = styled.div`
     overflow-y: auto;
     overflow-x: hidden;
     height: 90vh;
-
     &::-webkit-scrollbar {
       width: 6px;
       border-radius: 10px;

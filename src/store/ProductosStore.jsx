@@ -5,71 +5,69 @@ import {
   EliminarProductos,
   InsertarProductos,
   MostrarProductos,
-  ReportArkitductosTodos,ReportStockXProducto,ReportStockBajoMinimo,ReportKardexEntradaSalida,ReportInventarioValorado
+  ReportArkitductosTodos,
+  ReportStockXProducto,
+  ReportStockBajoMinimo,
+  ReportKardexEntradaSalida,
+  ReportInventarioValorado,
 } from "../index";
+
 export const useProductosStore = create((set, get) => ({
   buscador: "",
-  setBuscador: (p) => {
-    set({ buscador: p });
-  },
+  setBuscador: (p) => set({ buscador: p }),
   dataproductos: [],
   productoItemSelect: [],
   parametros: {},
+  
   mostrarProductos: async (p) => {
     const response = await MostrarProductos(p);
-    set({ parametros: p });
-    set({ dataproductos: response });
-    set({ productoItemSelect: [] });
+    set({ dataproductos: response, parametros: p, productoItemSelect: [] });
     return response;
   },
-  selectProductos: (p) => {
-    set({ productoItemSelect: p });
-  },
+  
+  selectProductos: (p) => set({ productoItemSelect: p }),
+  
   insertarProductos: async (p) => {
     await InsertarProductos(p);
-    const { mostrarProductos } = get();
-    const { parametros } = get();
-    set(mostrarProductos(parametros));
+    const { mostrarProductos, parametros } = get();
+    await mostrarProductos(parametros); // Actualiza los datos después de insertar
   },
+  
   eliminarProductos: async (p) => {
     await EliminarProductos(p);
-    const { mostrarProductos } = get();
-    const { parametros } = get();
-    console.log("parametros", parametros);
-    set(mostrarProductos(parametros));
+    const { mostrarProductos, parametros } = get();
+    await mostrarProductos(parametros); // Actualiza los datos después de eliminar
   },
-
+  
   editarProductos: async (p) => {
-    await EditarProductos(p);
-    const { mostrarProductos } = get();
-    const { parametros } = get();
-    console.log("parametros", parametros);
-    set(mostrarProductos(parametros));
+    await EditarProductos(p); // Esto debe llamar a la función SQL editarproductos
+    const { mostrarProductos, parametros } = get();
+    await mostrarProductos(parametros); // Actualiza los datos después de editar
   },
+  
   buscarProductos: async (p) => {
     const response = await BuscarProductos(p);
     set({ dataproductos: response });
     return response;
   },
+  
   reportArkitductosTodos: async (p) => {
-    const response = await ReportArkitductosTodos(p);
-    return response;
+    return await ReportArkitductosTodos(p);
   },
+  
   reportStockXproducto: async (p) => {
-    const response = await ReportStockXProducto(p);
-    return response;
+    return await ReportStockXProducto(p);
   },
+  
   reportBajoMinimo: async (p) => {
-    const response = await ReportStockBajoMinimo(p);
-    return response;
+    return await ReportStockBajoMinimo(p);
   },
+  
   reportKardexEntradaSalida: async (p) => {
-    const response = await ReportKardexEntradaSalida(p);
-    return response;
+    return await ReportKardexEntradaSalida(p);
   },
+  
   reportInventarioValorado: async (p) => {
-    const response = await ReportInventarioValorado(p);
-    return response;
+    return await ReportInventarioValorado(p);
   },
-
 }));

@@ -24,12 +24,10 @@ export function TablaProductos({
   SetopenRegistro,
   setdataSelect,
   setAccion,
-  isOpen, // Indica si el formulario está abierto
+  isOpen,
 }) {
-  const [pagina, setPagina] = useState(1);
-  const [datas, setData] = useState(data);
   const [columnFilters, setColumnFilters] = useState([]);
-  const { eliminarProductos } = useProductosStore();
+  const { dataproductos, eliminarProductos } = useProductosStore();
 
   function eliminar(p) {
     Swal.fire({
@@ -39,7 +37,7 @@ export function TablaProductos({
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Si, eliminar",
+      confirmButtonText: "Sí, eliminar",
     }).then(async (result) => {
       if (result.isConfirmed) {
         await eliminarProductos({ id: p });
@@ -48,34 +46,30 @@ export function TablaProductos({
   }
 
   function editar(data) {
+    console.log("Ejecutando función editar con datos:", data);
     SetopenRegistro(true);
     setdataSelect(data);
-    setAccion("Editar");
+    setAccion("Editar"); // Establece "Editar"
+    console.log("Accion establecida como: Editar");
   }
 
   useEffect(() => {
-    if (isOpen) return; // No escuchar eventos si el formulario está abierto
+    if (isOpen) return; // No ejecutar el escáner si el formulario está abierto
 
     let buffer = "";
     let timeoutId = null;
 
     const handleKeyDown = (e) => {
-      console.log("Tecla:", e.key, "Código:", e.keyCode);
-
       if (e.key === "Enter" || e.keyCode === 13) {
         if (buffer) {
-          console.log("Procesando código con Enter:", buffer);
           procesarCodigo(buffer);
           buffer = "";
         }
       } else if (/^[0-9a-zA-Z]$/.test(e.key)) {
         buffer += e.key;
-        console.log("Buffer actual:", buffer);
-
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
           if (buffer) {
-            console.log("Procesando código por timeout:", buffer);
             procesarCodigo(buffer);
             buffer = "";
           }
@@ -84,37 +78,16 @@ export function TablaProductos({
     };
 
     const procesarCodigo = (codigo) => {
-      console.log("Código final a procesar:", codigo);
-
-      if (typeof SetopenRegistro !== "function") {
-        console.error("SetopenRegistro no es una función:", SetopenRegistro);
-        return;
-      }
-      if (typeof setdataSelect !== "function") {
-        console.error("setdataSelect no es una función:", setdataSelect);
-        return;
-      }
-      if (typeof setAccion !== "function") {
-        console.error("setAccion no es una función:", setAccion);
-        return;
-      }
-
-      setdataSelect((prevData) => {
-        const updatedData = {
-          ...(prevData || {}),
-          codigobarras: codigo,
-        };
-        console.log("Datos actualizados para dataSelect:", updatedData);
-        return updatedData;
-      });
-
-      console.log("Abriendo formulario con código:", codigo);
+      setdataSelect((prevData) => ({
+        ...(prevData || {}),
+        codigobarras: codigo,
+      }));
       SetopenRegistro(true);
-      setAccion("Nuevo");
+      setAccion("Nuevo"); // Solo para nuevos registros desde el escáner
+      console.log("Accion establecida como: Nuevo (desde escáner)");
     };
 
     document.addEventListener("keydown", handleKeyDown);
-
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       clearTimeout(timeoutId);
@@ -124,14 +97,8 @@ export function TablaProductos({
   const columns = [
     {
       accessorKey: "descripcion",
-      header: "Descripcion",
+      header: "Descripción",
       cell: (info) => <span>{info.getValue()}</span>,
-      enableColumnFilter: true,
-      filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
-      },
     },
     {
       accessorKey: "stock_minimo",
@@ -142,33 +109,18 @@ export function TablaProductos({
           <span>{info.getValue()}</span>
         </td>
       ),
-      enableColumnFilter: true,
-      filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
-      },
     },
     {
       accessorKey: "categoria",
-      header: "Categoria",
+      header: "Categoría",
       enableSorting: false,
       cell: (info) => (
-        <td data-title="Categoria" className="ContentCell">
-          <Colorcontent
-            color={info.row.original.color}
-            className="contentCategoria"
-          >
+        <td data-title="Categoría" className="ContentCell">
+          <Colorcontent color={info.row.original.color}>
             {info.getValue()}
           </Colorcontent>
         </td>
       ),
-      enableColumnFilter: true,
-      filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
-      },
     },
     {
       accessorKey: "codigobarras",
@@ -179,12 +131,6 @@ export function TablaProductos({
           <span>{info.getValue()}</span>
         </td>
       ),
-      enableColumnFilter: true,
-      filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
-      },
     },
     {
       accessorKey: "precioventa",
@@ -195,12 +141,6 @@ export function TablaProductos({
           <span>{info.getValue()}</span>
         </td>
       ),
-      enableColumnFilter: true,
-      filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
-      },
     },
     {
       accessorKey: "preciocompra",
@@ -211,12 +151,6 @@ export function TablaProductos({
           <span>{info.getValue()}</span>
         </td>
       ),
-      enableColumnFilter: true,
-      filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
-      },
     },
     {
       accessorKey: "acciones",
@@ -230,17 +164,11 @@ export function TablaProductos({
           />
         </td>
       ),
-      enableColumnFilter: true,
-      filterFn: (row, columnId, filterStatuses) => {
-        if (filterStatuses.length === 0) return true;
-        const status = row.getValue(columnId);
-        return filterStatuses.includes(status?.id);
-      },
     },
   ];
 
   const table = useReactTable({
-    data,
+    data: dataproductos,
     columns,
     state: { columnFilters },
     getCoreRowModel: getCoreRowModel(),
@@ -248,19 +176,11 @@ export function TablaProductos({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     columnResizeMode: "onChange",
-    meta: {
-      updateData: (rowIndex, columnId, value) =>
-        setData((prev) =>
-          prev.map((row, index) =>
-            index === rowIndex ? { ...prev[rowIndex], [columnId]: value } : row
-          )
-        ),
-    },
   });
 
   return (
     <Container>
-      {data?.length > 0 ? (
+      {dataproductos?.length > 0 ? (
         <>
           <table className="responsive-table">
             <thead>
@@ -309,7 +229,6 @@ export function TablaProductos({
             table={table}
             irinicio={() => table.setPageIndex(0)}
             pagina={table.getState().pagination.pageIndex + 1}
-            setPagina={setPagina}
             maximo={table.getPageCount()}
           />
         </>
@@ -320,7 +239,7 @@ export function TablaProductos({
   );
 }
 
-// Estilos permanecen iguales
+// Estilos (sin cambios)
 const Container = styled.div`
   position: relative;
   margin: 5% 3%;
@@ -358,9 +277,6 @@ const Container = styled.div`
         font-weight: normal;
         text-align: center;
         color: ${({ theme }) => theme.text};
-        &:first-of-type {
-          text-align: center;
-        }
       }
     }
     tbody,
@@ -414,16 +330,6 @@ const Container = styled.div`
           }
         }
       }
-      th[scope="row"] {
-        @media (min-width: ${v.bplisa}) {
-          border-bottom: 1px solid rgba(161, 161, 161, 0.32);
-        }
-        @media (min-width: ${v.bpbart}) {
-          background-color: transparent;
-          text-align: center;
-          color: ${({ theme }) => theme.text};
-        }
-      }
       .ContentCell {
         text-align: right;
         display: flex;
@@ -434,10 +340,6 @@ const Container = styled.div`
         @media (min-width: ${v.bpbart}) {
           justify-content: center;
           border-bottom: none;
-        }
-        .contentCategoria {
-          color: ${(props) => props.color};
-          background-color: ${(props) => props.color};
         }
       }
       td {
